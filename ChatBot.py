@@ -1,7 +1,6 @@
 import json
 import sys
 import uvicorn
-import argparse
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -15,15 +14,6 @@ app = FastAPI()
 
 # Configure templates
 templates = Jinja2Templates(directory="templates")
-
-# Add CORS middleware to allow cross-origin requests
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 # Initialize variables on startup
@@ -106,7 +96,6 @@ async def submit(request: Request, prompt: str = Form(...)):
     try:
         # Get response from OpenAI API
         response = get_openai_response(prompt, google_sheet_data)
-        print(response)
 
         return templates.TemplateResponse('index.html', {"request": request, "response": response})
     except Exception as e:
@@ -115,6 +104,3 @@ async def submit(request: Request, prompt: str = Form(...)):
 
 if __name__ == "__main__":
     uvicorn.run("ChatBot:app", host="0.0.0.0", port=8000, reload=True)
-
-# Example command to run the application with original values:
-# SHEET_URL="https://docs.google.com/spreadsheets/d/1FI1OW8F6Dp312Rv0SBu1HbRVlMZy94Gmtj9GvhcDgBA/edit?usp=sharing" SHEET_NAME="Sheet1" GOOGLE_API_KEY_FILE="google_api_key.json" OPENAI_API_KEY_FILE="secrets.json" python ChatBot.py
